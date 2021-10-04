@@ -14,7 +14,7 @@ public class PlatformSpawner : MonoBehaviour {
     private float xPos = 20f; // 배치할 위치의 x 값
 
     private GameObject[] platforms; // 미리 생성한 발판들
-    private int currentIndex = 0; // 사용할 현재 순번의 발판
+    private int currentIndex = 0;   // 사용할 현재 순번의 발판
 
     private Vector2 poolPosition = new Vector2(0, -25); // 초반에 생성된 발판들을 화면 밖에 숨겨둘 위치
     private float lastSpawnTime; // 마지막 배치 시점
@@ -22,9 +22,41 @@ public class PlatformSpawner : MonoBehaviour {
 
     void Start() {
         // 변수들을 초기화하고 사용할 발판들을 미리 생성
+        platforms = new GameObject[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            platforms[i] = Instantiate(platformPrefab, poolPosition, Quaternion.identity);
+        }
+
+        lastSpawnTime = 0f;
+        timeBetSpawn = 0f;
     }
 
     void Update() {
         // 순서를 돌아가며 주기적으로 발판을 배치
+        if (GameManager.instance.isGameover == true)
+        {
+            return;
+        }
+
+        if (lastSpawnTime + timeBetSpawn <= Time.time)
+        {
+            lastSpawnTime = Time.time;
+            timeBetSpawn = Random.Range(timeBetSpawnMin, timeBetSpawnMax);
+            float yPos = Random.Range(yMin, yMax);
+
+            platforms[currentIndex].SetActive(false);
+            platforms[currentIndex].SetActive(true);
+            // Platform 컴포넌트의 OnEnable 실행됨
+
+            platforms[currentIndex].transform.position = new Vector2(xPos, yPos);
+            currentIndex++;
+
+            if (count <= currentIndex)
+            {
+                currentIndex = 0;
+            }
+        }
     }
 }
